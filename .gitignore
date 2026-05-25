@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+deepfake/
+deepfake_env/
+.venv/
+venv/
+env/
+
+# Local data and generated outputs
+data/
+FaceForensics++_C23/
+processed_data/
+logs/
+models/
+results/
+
+# Large/local media artifacts
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.h5
+*.pth
+*.pt
+*.onnx
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
