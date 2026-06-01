@@ -76,7 +76,7 @@ instead of the ignored local dataset directory.
 1. Push the repository to GitHub.
 2. Create a Railway project from the GitHub repository.
 3. Let Railway build the included `Dockerfile`.
-4. In the Railway service settings, generate a public domain.
+4. In the Railway service settings, generate a public domain for port `8080`.
 5. Open the generated HTTPS URL to use the desktop app.
 
 For the mobile app, replace the local API address with the generated Railway

@@ -3,12 +3,13 @@ FROM python:3.10-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python \
-    DEPLOYMENT_MODEL_DIR=/app/deployment_models
+    DEPLOYMENT_MODEL_DIR=/app/deployment_models \
+    PORT=8080
 
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
+    && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements-production.txt .
@@ -18,4 +19,6 @@ COPY app_api ./app_api
 COPY utils ./utils
 COPY deployment_models ./deployment_models
 
-CMD ["sh", "-c", "python -m uvicorn app_api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+EXPOSE 8080
+
+CMD ["sh", "-c", "python -m uvicorn app_api.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
