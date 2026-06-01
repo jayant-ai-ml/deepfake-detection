@@ -3,201 +3,579 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Deepfake Detector</title>
+    <title>VeriFace | Deepfake Detection</title>
     <style>
       :root {
         color-scheme: light;
-        font-family: Inter, Arial, sans-serif;
-        background: #eef4ff;
-        color: #10213d;
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        color: #152033;
+        background: #f5f7fb;
+        --navy: #10233f;
+        --navy-soft: #1b3559;
+        --blue: #2563eb;
+        --blue-dark: #1d4ed8;
+        --blue-soft: #eef4ff;
+        --line: #e1e7f0;
+        --muted: #687890;
+        --green: #159455;
+        --amber: #c7770b;
+        --red: #dc3d4b;
+        --shadow: 0 24px 60px rgba(31, 56, 94, 0.1);
       }
 
       * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
 
       body {
-        margin: 0;
         min-height: 100vh;
+        margin: 0;
         background:
-          radial-gradient(circle at top right, #dbeafe 0, transparent 34rem),
-          linear-gradient(145deg, #f8fbff, #eef4ff);
+          radial-gradient(circle at 88% 8%, rgba(211, 225, 255, 0.65), transparent 24rem),
+          #f7f9fc;
       }
 
-      main {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
-        gap: 50px;
-        align-items: center;
-        min-height: 100vh;
-        max-width: 1180px;
+      button, input { font: inherit; }
+
+      .shell {
+        width: min(1180px, calc(100% - 40px));
         margin: auto;
-        padding: 48px 28px;
       }
 
-      .eyebrow {
-        margin: 0 0 12px;
-        color: #2563eb;
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 1.8px;
+      header {
+        border-bottom: 1px solid rgba(218, 226, 238, 0.85);
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: blur(16px);
       }
 
-      h1 {
-        max-width: 620px;
-        margin: 0;
-        color: #0f172a;
-        font-size: clamp(42px, 6vw, 70px);
-        line-height: 1.02;
-      }
-
-      .intro {
-        max-width: 610px;
-        margin: 22px 0 0;
-        color: #52637d;
-        font-size: 19px;
-        line-height: 1.65;
-      }
-
-      .pill {
-        display: inline-flex;
-        gap: 8px;
+      .nav {
+        display: flex;
+        min-height: 72px;
         align-items: center;
-        margin-top: 28px;
-        padding: 10px 14px;
-        border: 1px solid #cbdcf8;
-        border-radius: 999px;
-        background: #f8fbff;
-        color: #315480;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        color: var(--navy);
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.4px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border-radius: 11px;
+        background: var(--navy);
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(16, 35, 63, 0.22);
+      }
+
+      .brand-mark svg { width: 20px; }
+
+      .nav-status, .model-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #4d607b;
         font-size: 13px;
         font-weight: 700;
       }
 
-      .dot {
-        width: 9px;
-        height: 9px;
+      .status-dot {
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        background: #16a34a;
+        background: #20ad68;
+        box-shadow: 0 0 0 4px rgba(32, 173, 104, 0.14);
       }
 
-      .card {
-        padding: 26px;
-        border: 1px solid #d7e2f2;
-        border-radius: 24px;
-        background: rgba(255, 255, 255, 0.92);
-        box-shadow: 0 22px 60px rgba(46, 81, 130, 0.16);
+      main { padding: 58px 0 52px; }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(400px, 500px);
+        gap: 54px;
+        align-items: center;
       }
 
-      .card h2 { margin: 0; font-size: 24px; }
-      .muted { color: #6a7890; line-height: 1.5; }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 18px;
+        color: var(--blue-dark);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+      }
+
+      h1 {
+        max-width: 650px;
+        margin: 0;
+        color: var(--navy);
+        font-size: clamp(42px, 5vw, 66px);
+        letter-spacing: -2.5px;
+        line-height: 1.04;
+      }
+
+      .hero-copy {
+        max-width: 620px;
+        margin: 22px 0 0;
+        color: #5c6d85;
+        font-size: 18px;
+        line-height: 1.7;
+      }
+
+      .trust-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 30px;
+      }
+
+      .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #5d6d84;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .trust-item svg { width: 17px; color: var(--blue); }
+
+      .analysis-card {
+        padding: 25px;
+        border: 1px solid rgba(215, 225, 239, 0.95);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: var(--shadow);
+      }
+
+      .card-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      h2 { margin: 0; color: var(--navy); font-size: 23px; letter-spacing: -0.5px; }
+      .muted { margin: 7px 0 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+      .step {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--blue-soft);
+        color: var(--blue-dark);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
 
       .drop-zone {
         display: block;
         margin-top: 20px;
-        padding: 28px 18px;
-        border: 2px dashed #9db9e8;
-        border-radius: 16px;
+        padding: 25px 18px;
+        border: 1.5px dashed #a9bfe1;
+        border-radius: 15px;
         background: #f8fbff;
         cursor: pointer;
         text-align: center;
-        transition: 160ms ease;
+        transition: 180ms ease;
       }
 
       .drop-zone:hover, .drop-zone.dragging {
-        border-color: #2563eb;
-        background: #eff6ff;
+        border-color: var(--blue);
+        background: #f1f6ff;
+        transform: translateY(-1px);
       }
 
-      .drop-zone strong { display: block; color: #1d4ed8; }
-      .drop-zone span { display: block; margin-top: 8px; color: #71819a; font-size: 13px; }
+      .upload-icon {
+        display: grid;
+        width: 43px;
+        height: 43px;
+        margin: 0 auto 11px;
+        place-items: center;
+        border-radius: 13px;
+        background: #e8f0ff;
+        color: var(--blue);
+      }
+
+      .upload-icon svg { width: 22px; }
+      .drop-zone strong { display: block; color: #2b4771; font-size: 15px; }
+      .drop-zone span { display: block; margin-top: 7px; color: #8492a7; font-size: 12px; }
       input[type="file"] { display: none; }
 
-      button {
-        width: 100%;
-        margin-top: 18px;
-        padding: 15px;
-        border: 0;
+      .file-card {
+        display: none;
+        align-items: center;
+        gap: 11px;
+        margin-top: 13px;
+        padding: 11px 12px;
+        border: 1px solid var(--line);
         border-radius: 12px;
-        background: #2563eb;
-        color: #fff;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: 800;
+        background: #fff;
       }
 
-      button:disabled { cursor: wait; opacity: 0.62; }
+      .file-card.visible { display: flex; }
+
+      .file-icon {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 9px;
+        background: #edf4ff;
+        color: var(--blue);
+      }
+
+      .file-icon svg { width: 18px; }
+      .file-copy { min-width: 0; flex: 1; }
+      .file-name { overflow: hidden; color: #33445e; font-size: 13px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+      .file-meta { margin-top: 3px; color: #8a97aa; font-size: 11px; }
+
+      .remove-file {
+        width: auto;
+        margin: 0;
+        padding: 7px;
+        border: 0;
+        background: transparent;
+        color: #92a0b2;
+        cursor: pointer;
+      }
+
+      .remove-file svg { width: 16px; }
+
+      .analyze {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        margin-top: 16px;
+        padding: 14px 17px;
+        border: 0;
+        border-radius: 11px;
+        background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+        color: #fff;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 800;
+        transition: 160ms ease;
+      }
+
+      .analyze:hover { transform: translateY(-1px); box-shadow: 0 14px 23px rgba(37, 99, 235, 0.26); }
+      .analyze:disabled { cursor: wait; opacity: 0.68; transform: none; }
+      .analyze svg { width: 17px; }
+
+      .loader {
+        display: none;
+        width: 15px;
+        height: 15px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 700ms linear infinite;
+      }
+
+      .analyze.loading .loader { display: block; }
+      .analyze.loading .button-icon { display: none; }
+
+      .privacy-note {
+        display: flex;
+        gap: 7px;
+        align-items: flex-start;
+        margin: 14px 0 0;
+        color: #8b98aa;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .privacy-note svg { width: 14px; flex: 0 0 auto; color: #6f83a1; }
 
       .result {
         display: none;
         margin-top: 18px;
-        padding: 17px;
-        border: 2px solid;
-        border-radius: 15px;
+        padding: 16px;
+        border: 1px solid;
+        border-radius: 14px;
       }
 
       .result.visible { display: block; }
-      .result.real { border-color: #16a34a; background: #f0fdf4; }
-      .result.fake { border-color: #dc2626; background: #fef2f2; }
-      .result.review { border-color: #d97706; background: #fffbeb; }
-      .result.error { border-color: #f59e0b; background: #fffbeb; }
-      .result h3 { margin: 0; font-size: 21px; }
-      .result p { margin: 9px 0 0; color: #506078; font-size: 14px; line-height: 1.5; }
+      .result.real { border-color: #a7dfc2; background: #f2fbf6; }
+      .result.fake { border-color: #efb9be; background: #fff5f5; }
+      .result.review, .result.error { border-color: #ead09c; background: #fffbf2; }
 
-      footer {
-        margin-top: 18px;
-        color: #8190a6;
+      .result-head { display: flex; align-items: center; gap: 10px; }
+      .result-icon { display: grid; width: 35px; height: 35px; place-items: center; border-radius: 50%; }
+      .result-icon svg { width: 18px; }
+      .real .result-icon { background: #d9f4e4; color: var(--green); }
+      .fake .result-icon { background: #fde2e4; color: var(--red); }
+      .review .result-icon, .error .result-icon { background: #faedcf; color: var(--amber); }
+      .result-label { color: #8997a9; font-size: 10px; font-weight: 800; letter-spacing: 1px; }
+      .result h3 { margin: 3px 0 0; color: var(--navy); font-size: 18px; }
+      .result-message { margin: 11px 0 0; color: #607087; font-size: 13px; line-height: 1.55; }
+
+      .score-wrap { margin-top: 15px; }
+      .score-top { display: flex; justify-content: space-between; color: #687890; font-size: 11px; font-weight: 700; }
+      .meter { height: 7px; margin-top: 7px; overflow: hidden; border-radius: 999px; background: #e6ecf3; }
+      .meter-fill { height: 100%; border-radius: inherit; transition: width 500ms ease; }
+      .real .meter-fill { background: var(--green); }
+      .fake .meter-fill { background: var(--red); }
+      .review .meter-fill { background: var(--amber); }
+
+      .result-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .metric { padding: 9px; border-radius: 9px; background: rgba(255, 255, 255, 0.72); }
+      .metric span { display: block; color: #8c98a9; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
+      .metric strong { display: block; margin-top: 4px; color: #34455f; font-size: 13px; }
+
+      .how-it-works {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 62px;
+      }
+
+      .feature {
+        display: flex;
+        gap: 12px;
+        padding: 17px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .feature-number {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 9px;
+        background: #e9f1ff;
+        color: var(--blue-dark);
         font-size: 12px;
+        font-weight: 800;
+      }
+
+      .feature h3 { margin: 0; color: #2c405f; font-size: 14px; }
+      .feature p { margin: 5px 0 0; color: #7b899d; font-size: 12px; line-height: 1.55; }
+
+      .page-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 38px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        color: #8996a8;
+        font-size: 11px;
         line-height: 1.5;
       }
 
-      @media (max-width: 860px) {
-        main { grid-template-columns: 1fr; gap: 34px; padding-top: 64px; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      @media (max-width: 900px) {
+        main { padding-top: 42px; }
+        .hero { grid-template-columns: 1fr; gap: 34px; }
+        .hero-copy { font-size: 16px; }
+        .how-it-works { margin-top: 42px; }
+      }
+
+      @media (max-width: 620px) {
+        .shell { width: min(100% - 28px, 520px); }
+        .nav { min-height: 64px; }
+        .nav-status { display: none; }
+        main { padding: 34px 0 28px; }
+        h1 { font-size: 43px; letter-spacing: -1.8px; }
+        .trust-row { gap: 12px; margin-top: 22px; }
+        .analysis-card { padding: 18px; border-radius: 18px; }
+        .how-it-works { grid-template-columns: 1fr; gap: 9px; margin-top: 28px; }
+        .page-footer { display: block; }
+        .page-footer span { display: block; margin-top: 5px; }
       }
     </style>
   </head>
   <body>
-    <main>
-      <section>
-        <p class="eyebrow">VIDEO AUTHENTICITY CHECK</p>
-        <h1>Detect manipulated face videos.</h1>
-        <p class="intro">
-          Upload a video from your desktop. The system samples facial landmarks
-          across frames and returns a real or deepfake confidence score.
-        </p>
-        <div class="pill"><span class="dot"></span> Trained ensemble model ready</div>
+    <header>
+      <nav class="nav shell">
+        <div class="brand">
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3 20 6v5c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6l8-3Z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </span>
+          VeriFace
+        </div>
+        <div class="nav-status"><span class="status-dot"></span> AI detection service online</div>
+      </nav>
+    </header>
+
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">AI-POWERED VIDEO FORENSICS</p>
+          <h1>Verify video authenticity with confidence.</h1>
+          <p class="hero-copy">
+            Detect facial manipulation in seconds. VeriFace analyzes temporal
+            facial landmarks across video frames and provides a clear,
+            evidence-based authenticity assessment.
+          </p>
+          <div class="trust-row">
+            <div class="trust-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+              </svg>
+              Privacy-conscious processing
+            </div>
+            <div class="trust-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20V10" /><path d="m18 20-6-6-6 6" /><path d="M6 4h12" />
+              </svg>
+              30-frame temporal analysis
+            </div>
+          </div>
+        </div>
+
+        <section class="analysis-card" aria-label="Video analysis form">
+          <div class="card-head">
+            <div>
+              <h2>Analyze a video</h2>
+              <p class="muted">Upload a clear face video to begin.</p>
+            </div>
+            <span class="step">STEP 1 OF 1</span>
+          </div>
+
+          <label class="drop-zone" id="drop-zone" for="video">
+            <span class="upload-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 16V4" /><path d="m8 8 4-4 4 4" /><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+              </svg>
+            </span>
+            <strong>Drop your video here, or browse</strong>
+            <span>MP4, MOV, AVI, MKV or WEBM | Maximum 100 MB</span>
+          </label>
+          <input id="video" type="file" accept="video/*,.mkv" />
+
+          <div class="file-card" id="file-card">
+            <span class="file-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m16 13 5 3-5 3v-6Z" /><rect width="13" height="14" x="3" y="5" rx="2" />
+              </svg>
+            </span>
+            <div class="file-copy">
+              <div class="file-name" id="file-name"></div>
+              <div class="file-meta" id="file-meta"></div>
+            </div>
+            <button class="remove-file" id="remove-file" type="button" aria-label="Remove selected video">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <button class="analyze" id="analyze" type="button">
+            <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3 20 6v5c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6l8-3Z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+            <span class="loader"></span>
+            <span id="button-label">Run authenticity check</span>
+          </button>
+
+          <p class="privacy-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="16" height="12" x="4" y="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" />
+            </svg>
+            Uploaded videos are processed for analysis and removed immediately afterward.
+          </p>
+
+          <div class="result" id="result"></div>
+        </section>
       </section>
 
-      <section class="card">
-        <h2>Analyze a video</h2>
-        <p class="muted">Use a clear face video up to 100 MB.</p>
-        <label class="drop-zone" id="drop-zone" for="video">
-          <strong id="file-label">Choose video or drag it here</strong>
-          <span>MP4, MOV, AVI, MKV or WEBM</span>
-        </label>
-        <input id="video" type="file" accept="video/*,.mkv" />
-        <button id="analyze" type="button">Analyze video</button>
-        <div class="result" id="result"></div>
-        <footer>
-          This is an automated estimate. Use manual verification for sensitive decisions.
-        </footer>
+      <section class="how-it-works" aria-label="How analysis works">
+        <article class="feature">
+          <span class="feature-number">01</span>
+          <div><h3>Secure upload</h3><p>Your video is submitted through an encrypted connection for analysis.</p></div>
+        </article>
+        <article class="feature">
+          <span class="feature-number">02</span>
+          <div><h3>Facial landmark scan</h3><p>The model examines facial movement patterns across sampled frames.</p></div>
+        </article>
+        <article class="feature">
+          <span class="feature-number">03</span>
+          <div><h3>Authenticity assessment</h3><p>Receive a confidence score or a manual-review recommendation.</p></div>
+        </article>
       </section>
+
+      <footer class="page-footer">
+        <strong>VeriFace Deepfake Detection</strong>
+        <span>Automated estimates should be paired with manual verification for sensitive decisions.</span>
+      </footer>
     </main>
 
     <script>
       const input = document.querySelector("#video");
-      const fileLabel = document.querySelector("#file-label");
       const button = document.querySelector("#analyze");
+      const buttonLabel = document.querySelector("#button-label");
       const result = document.querySelector("#result");
       const dropZone = document.querySelector("#drop-zone");
+      const fileCard = document.querySelector("#file-card");
+      const fileName = document.querySelector("#file-name");
+      const fileMeta = document.querySelector("#file-meta");
+      const removeFile = document.querySelector("#remove-file");
+
+      function icon(path) {
+        return `<span class="result-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${path}</svg></span>`;
+      }
+
+      function escapeHtml(value) {
+        const node = document.createElement("div");
+        node.textContent = value;
+        return node.innerHTML;
+      }
+
+      function formatSize(bytes) {
+        if (!bytes) return "Size unavailable";
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+      }
 
       function setFile(file) {
         if (!file) return;
         const transfer = new DataTransfer();
         transfer.items.add(file);
         input.files = transfer.files;
-        fileLabel.textContent = file.name;
+        fileName.textContent = file.name;
+        fileMeta.textContent = `${formatSize(file.size)} | Ready to analyze`;
+        fileCard.classList.add("visible");
+        result.className = "result";
+      }
+
+      function clearFile() {
+        input.value = "";
+        fileCard.classList.remove("visible");
         result.className = "result";
       }
 
       input.addEventListener("change", () => setFile(input.files[0]));
+      removeFile.addEventListener("click", clearFile);
       dropZone.addEventListener("dragover", (event) => {
         event.preventDefault();
         dropZone.classList.add("dragging");
@@ -211,12 +589,13 @@
 
       button.addEventListener("click", async () => {
         if (!input.files[0]) {
-          showError("Please choose a video first.");
+          showError("Select a video file before starting the analysis.");
           return;
         }
 
         button.disabled = true;
-        button.textContent = "Analyzing...";
+        button.classList.add("loading");
+        buttonLabel.textContent = "Analyzing facial patterns...";
         result.className = "result";
 
         try {
@@ -225,34 +604,57 @@
           const response = await fetch("/predict", { method: "POST", body: form });
           const data = await response.json();
           if (!response.ok) throw new Error(data.detail || "Prediction failed.");
-
-          const needsReview = data.prediction === "review";
-          const title = needsReview
-            ? "Needs manual review"
-            : data.is_deepfake
-              ? "Deepfake detected"
-              : "Likely real video";
-          const resultClass = needsReview ? "review" : data.is_deepfake ? "fake" : "real";
-          const confidence = needsReview
-            ? "Model is not confident enough for an automatic decision"
-            : `${(data.confidence * 100).toFixed(1)}% confidence`;
-          result.className = `result visible ${resultClass}`;
-          result.innerHTML = `
-            <h3>${title}</h3>
-            <p><strong>${confidence}</strong></p>
-            <p>Fake score: ${(data.fake_probability * 100).toFixed(1)}% ·
-              Faces found: ${data.valid_frames}/${data.sampled_frames}</p>`;
+          showResult(data);
         } catch (error) {
           showError(error.message);
         } finally {
           button.disabled = false;
-          button.textContent = "Analyze video";
+          button.classList.remove("loading");
+          buttonLabel.textContent = "Run authenticity check";
         }
       });
 
+      function showResult(data) {
+        const review = data.prediction === "review";
+        const variant = review ? "review" : data.is_deepfake ? "fake" : "real";
+        const title = review ? "Manual review recommended" : data.is_deepfake ? "Deepfake indicators detected" : "Video appears authentic";
+        const message = review
+          ? "The model found mixed signals and cannot issue a reliable automatic decision."
+          : data.is_deepfake
+            ? "Facial movement patterns indicate a likely manipulated video."
+            : "Facial movement patterns are consistent with an authentic video.";
+        const symbol = variant === "real"
+          ? '<path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="9" />'
+          : variant === "fake"
+            ? '<path d="M12 9v4m0 4h.01" /><path d="M10.3 3.8 2.5 17a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z" />'
+            : '<path d="M12 18h.01M12 14a3 3 0 1 0-3-3" /><circle cx="12" cy="12" r="9" />';
+        const fakeScore = (data.fake_probability * 100).toFixed(1);
+
+        result.className = `result visible ${variant}`;
+        result.innerHTML = `
+          <div class="result-head">
+            ${icon(symbol)}
+            <div><div class="result-label">AUTHENTICITY ASSESSMENT</div><h3>${title}</h3></div>
+          </div>
+          <p class="result-message">${message}</p>
+          <div class="score-wrap">
+            <div class="score-top"><span>Authentic</span><span>Deepfake probability: ${fakeScore}%</span></div>
+            <div class="meter"><div class="meter-fill" style="width:${fakeScore}%"></div></div>
+          </div>
+          <div class="result-grid">
+            <div class="metric"><span>FACE FRAMES</span><strong>${data.valid_frames}/${data.sampled_frames}</strong></div>
+            <div class="metric"><span>MODEL STATUS</span><strong>${review ? "Review required" : "Decision ready"}</strong></div>
+          </div>`;
+      }
+
       function showError(message) {
         result.className = "result visible error";
-        result.innerHTML = `<h3>Could not analyze video</h3><p>${message}</p>`;
+        result.innerHTML = `
+          <div class="result-head">
+            ${icon('<path d="M12 9v4m0 4h.01" /><circle cx="12" cy="12" r="9" />')}
+            <div><div class="result-label">ANALYSIS ERROR</div><h3>Could not analyze video</h3></div>
+          </div>
+          <p class="result-message">${escapeHtml(message)}</p>`;
       }
     </script>
   </body>
