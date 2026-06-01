@@ -7,6 +7,7 @@ mediapipe==0.10.14
 protobuf==4.25.3
 xgboost==1.7.6
 lightgbm==4.3.0
+tqdm==4.66.4
 fastapi==0.115.12
 uvicorn[standard]==0.34.2
 python-multipart==0.0.20
