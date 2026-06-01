@@ -12,6 +12,7 @@ from pathlib import Path
 os.environ.setdefault("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python")
 
 import numpy as np
+import cv2
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -27,6 +28,7 @@ LANDMARK_SCALER_PATH = DEPLOYMENT_MODEL_DIR / "scaler.pkl"
 DESKTOP_APP_PATH = BASE_DIR / "app_api" / "static" / "index.html"
 MAX_UPLOAD_BYTES = 100 * 1024 * 1024
 MIN_VALID_FRAMES = 9
+FALLBACK_SCAN_FRAMES = 120
 ALLOWED_SUFFIXES = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 
 app = FastAPI(title="Deepfake Detector API", version="1.0.0")
@@ -77,6 +79,42 @@ def normalize_landmarks(sequence: np.ndarray) -> np.ndarray:
     return normalized.reshape(original_shape).astype(np.float32)
 
 
+def extract_landmarks_for_prediction(video_path: Path, max_frames: int = 30):
+    """Extract landmarks and retry with a denser scan for difficult videos."""
+    extractor = get_extractor()
+    landmarks, valid_frames = extractor.extract_from_video(video_path, max_frames=max_frames)
+    if len(valid_frames) >= MIN_VALID_FRAMES:
+        return landmarks, valid_frames
+
+    cap = cv2.VideoCapture(str(video_path))
+    if not cap.isOpened():
+        return landmarks, valid_frames
+
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    candidate_count = min(max(total_frames, 0), FALLBACK_SCAN_FRAMES)
+    detected_landmarks = []
+    detected_frames = []
+
+    for frame_idx in np.linspace(0, max(total_frames - 1, 0), candidate_count, dtype=int):
+        cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_idx))
+        read_ok, frame = cap.read()
+        if not read_ok:
+            continue
+        frame_landmarks = extractor.extract_landmarks_from_frame(frame)
+        if frame_landmarks is not None:
+            detected_landmarks.append(frame_landmarks)
+            detected_frames.append(int(frame_idx))
+
+    cap.release()
+    if len(detected_frames) < MIN_VALID_FRAMES:
+        return landmarks, valid_frames
+
+    selected = np.linspace(0, len(detected_landmarks) - 1, max_frames, dtype=int)
+    dense_landmarks = np.stack([detected_landmarks[index] for index in selected])
+    dense_frames = [detected_frames[index] for index in selected]
+    return dense_landmarks.astype(np.float32), dense_frames
+
+
 def extract_enhanced_temporal_features(sequence: np.ndarray) -> np.ndarray:
     """Apply the same feature engineering used by final_training.py."""
     x = sequence[np.newaxis, ...]
@@ -109,7 +147,7 @@ def extract_enhanced_temporal_features(sequence: np.ndarray) -> np.ndarray:
 
 def predict_video(video_path: Path) -> dict:
     artifact = get_artifact()
-    landmarks, valid_frames = get_extractor().extract_from_video(video_path, max_frames=30)
+    landmarks, valid_frames = extract_landmarks_for_prediction(video_path, max_frames=30)
     if len(valid_frames) < MIN_VALID_FRAMES:
         raise ValueError(
             "Face clearly detect nahi hua. Front-facing aur well-lit video upload karein."
